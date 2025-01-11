@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Квиз с результатами</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+        }
+        #quiz-container {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div id="quiz-container"></div>
+    <canvas id="resultsChart" width="400" height="200" style="display: none;"></canvas>
+    <button id="submit-results" style="display: none;">Отправить результаты</button>
+
+    <script>
+        const questions = [
+            {
+                question: "Какой цвет небо?",
+                options: ["Синий", "Зеленый", "Красный"],
+                answer: "Синий"
+            },
+            {
+                question: "Кто написал 'Войну и мир'?",
+                options: ["Толстой", "Достоевский", "Пушкин"],
+                answer: "Толстой"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let results = [];
+
+        function displayQuestion() {
+            const quizContainer = document.getElementById('quiz-container');
+            const currentQuestion = questions[currentQuestionIndex];
+            quizContainer.innerHTML = `<h2>${currentQuestion.question}</h2>`;
+            currentQuestion.options.forEach(option => {
+                quizContainer.innerHTML += `<button onclick="checkAnswer('${option}')">${option}</button>`;
+            });
+        }
+
+        function checkAnswer(selectedOption) {
+            const currentQuestion = questions[currentQuestionIndex];
+            results.push(selectedOption === currentQuestion.answer);
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < questions.length) {
+                displayQuestion();
+            } else {
+                displayResultsChart();
+            }
+        }
+
+        function displayResultsChart() {
+            const ctx = document.getElementById('resultsChart').getContext('2d');
+            const correctAnswers = results.filter(result => result).length;
+            const incorrectAnswers = results.length - correctAnswers;
+
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Правильные', 'Неправильные'],
+                        datasets: [{
+                            label: 'Результаты квиза',
+                            data: [correctAnswers, incorrectAnswers],
+                            backgroundColor: ['#4CAF50', '#F44336'],
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+
+                document.getElementById('resultsChart').style.display = 'block';
+                document.getElementById('submit-results').style.display = 'block';
+        }
+
+        document.getElementById('submit-results').addEventListener('click', () => {
+            const userAnswers = results .map((answer, index) => {
+                return `Вопрос ${index + 1}: Вы выбрали "${answer.selected}", правильный ответ: "${answer.correct}"`;
+            }).join('\n');
+
+            // Форматируем данные в JSON
+            const dataToSend = JSON.stringify({ userAnswers });
+
+            // Отправляем данные в бот
+            Telegram.WebApp.sendData(dataToSend);  
+        });
+
+        // Инициализация квиза
+        displayQuestion();
+    </script>
+</body>
+</html>
