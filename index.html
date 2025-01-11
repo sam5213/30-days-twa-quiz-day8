@@ -68,8 +68,8 @@
 
         function checkAnswer(selectedOption) {
             const currentQuestion = questions[currentQuestionIndex];
-            userAnswers.push(selectedOption === currentQuestion.answer);
-            results.push({selectedOption, currentQuestion.answer});
+            results.push(selectedOption === currentQuestion.answer);
+            selectAnswer(selectedOption, currentQuestion.answer);
             currentQuestionIndex++;
 
             if (currentQuestionIndex < questions.length) {
@@ -81,8 +81,8 @@
 
         function displayResultsChart() {
             const ctx = document.getElementById('resultsChart').getContext('2d');
-            const correctAnswers = userAnswers.filter(result => result).length;
-            const incorrectAnswers = userAnswers.length - correctAnswers;
+            const correctAnswers = results.filter(result => result).length;
+            const incorrectAnswers = results.length - correctAnswers;
 
             const chart = new Chart(ctx, {
                 type: 'bar',
@@ -107,8 +107,12 @@
                 document.getElementById('submit-results').style.display = 'block';
         }
 
+        function selectAnswer(selected, correct) {
+            userAnswers.push({ selected, correct }); // Сохраняем ответ пользователя
+        }
+        
         function sendResults() {
-            const resultsToSend = results .map((answer, index) => {
+            const resultsToSend = userAnswers.map((answer, index) => {
                 return `Вопрос ${index + 1}: Вы выбрали "${answer.selected}", правильный ответ: "${answer.correct}"`;
             }).join('\n');
 
