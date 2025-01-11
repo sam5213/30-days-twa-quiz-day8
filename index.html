@@ -55,6 +55,7 @@
 
         let currentQuestionIndex = 0;
         let userAnswers = [];
+        let results = [];
 
         function displayQuestion() {
             const quizContainer = document.getElementById('quiz-container');
@@ -68,6 +69,7 @@
         function checkAnswer(selectedOption) {
             const currentQuestion = questions[currentQuestionIndex];
             userAnswers.push(selectedOption === currentQuestion.answer);
+            results.push({selectedOption, currentQuestion.answer});
             currentQuestionIndex++;
 
             if (currentQuestionIndex < questions.length) {
@@ -79,7 +81,7 @@
 
         function displayResultsChart() {
             const ctx = document.getElementById('resultsChart').getContext('2d');
-            const correctAnswers = userAnswers.filter(result => userAnswers).length;
+            const correctAnswers = userAnswers.filter(result => result).length;
             const incorrectAnswers = userAnswers.length - correctAnswers;
 
             const chart = new Chart(ctx, {
@@ -106,12 +108,12 @@
         }
 
         function sendResults() {
-            const results = userAnswers .map((answer, index) => {
+            const resultsToSend = results .map((answer, index) => {
                 return `Вопрос ${index + 1}: Вы выбрали "${answer.selected}", правильный ответ: "${answer.correct}"`;
             }).join('\n');
 
             // Форматируем данные в JSON
-            const dataToSend = JSON.stringify({ results });
+            const dataToSend = JSON.stringify({ resultsToSend });
 
             // Отправляем данные в бот
             Telegram.WebApp.sendData(dataToSend);
