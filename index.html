@@ -114,7 +114,7 @@
         
         function sendResults() {
             const resultsToSend = userAnswers.map((answer, index) => {
-                return `Вопрос ${index + 1}: Вы выбрали "${answer.selected}", правильный ответ: "${answer.correct}"`;
+                return `Вопрос ${index + 1}: Выбран "${answer.selected}", правильный ответ: "${answer.correct}"`;
             }).join('\n');
 
             // Форматируем данные в JSON
